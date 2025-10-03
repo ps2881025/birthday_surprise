@@ -1,0 +1,801 @@
+<html lang="zh-TW"><head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>特別的生日驚喜</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Georgia', serif;
+            background: linear-gradient(135deg, #4FC3F7, #26C6DA, #00BCD4);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            overflow-x: hidden;
+        }
+
+        /* 編輯模式樣式 */
+        .edit-mode {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255, 255, 255, 0.95);
+            z-index: 1000;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .edit-controls {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .edit-header {
+            text-align: center;
+            margin-bottom: 30px;
+            color: #00695C;
+        }
+
+        .edit-section {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-section h3 {
+            color: #00838F;
+            margin-bottom: 15px;
+        }
+
+        .edit-input {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #B2EBF2;
+            border-radius: 5px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .edit-textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #B2EBF2;
+            border-radius: 5px;
+            font-size: 16px;
+            min-height: 150px;
+            resize: vertical;
+            font-family: 'Georgia', serif;
+        }
+
+        .page-editor {
+            border: 3px solid #4DD0E1;
+            margin-bottom: 15px;
+            position: relative;
+        }
+
+        .page-number {
+            position: absolute;
+            top: -15px;
+            left: 15px;
+            background: #00BCD4;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 14px;
+            font-weight: bold;
+        }
+
+        .btn {
+            padding: 12px 25px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            margin: 5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #00BCD4, #26C6DA);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #B2EBF2;
+            color: #00695C;
+        }
+
+        .btn-danger {
+            background: #FF8A80;
+            color: white;
+        }
+
+        .btn-success {
+            background: #81C784;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .button-group {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        /* 倒數計時樣式 */
+        .countdown-container {
+            text-align: center;
+            color: white;
+            max-width: 500px;
+        }
+
+        .envelope {
+            width: 300px;
+            height: 200px;
+            background: linear-gradient(45deg, #E0F7FA, #B2EBF2);
+            margin: 0 auto 30px;
+            position: relative;
+            border-radius: 10px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .envelope:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .envelope::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 0;
+            height: 0;
+            border-style: solid;
+            border-width: 100px 150px 0 150px;
+            border-color: #4DD0E1 transparent transparent transparent;
+        }
+
+        .envelope-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            color: #00695C;
+            font-size: 18px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(255, 255, 255, 0.8);
+        }
+
+        .countdown {
+            font-size: 24px;
+            font-weight: bold;
+            margin: 20px 0;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .countdown-label {
+            font-size: 18px;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        /* 信件內容樣式 */
+        .letter-container {
+            perspective: 1000px;
+            display: none;
+        }
+
+        .letter-book {
+            width: 600px;
+            height: 400px;
+            position: relative;
+            margin: 0 auto;
+            transform-style: preserve-3d;
+        }
+
+        .letter-page {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(145deg, #FFFFFF, #F0F8FF);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            transform-origin: left center;
+            transition: transform 0.8s ease-in-out;
+            backface-visibility: hidden;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .letter-page.active {
+            display: block;
+        }
+
+        .letter-page.flipped {
+            transform: rotateY(-180deg);
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .letter-content {
+            color: #00695C;
+            font-size: 18px;
+            line-height: 1.8;
+            text-align: center;
+        }
+
+        .letter-content h2 {
+            color: #00838F;
+            margin-bottom: 20px;
+            font-size: 28px;
+        }
+
+        .navigation {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: none;
+            gap: 20px;
+        }
+
+        .nav-btn {
+            padding: 15px 25px;
+            background: linear-gradient(45deg, #00BCD4, #26C6DA);
+            color: white;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+        }
+
+        .nav-btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+
+        .nav-btn:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .edit-toggle {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            z-index: 999;
+        }
+
+        .page-indicator {
+            position: fixed;
+            top: 50%;
+            right: 30px;
+            transform: translateY(-50%);
+            display: none;
+            flex-direction: column;
+            gap: 10px;
+        }
+
+        .page-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.5);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .page-dot.active {
+            background: #00BCD4;
+            transform: scale(1.2);
+        }
+
+        /* 手機響應式 */
+        @media (max-width: 768px) {
+            .letter-book {
+                width: 90vw;
+                height: 70vh;
+                max-width: 400px;
+                max-height: 600px;
+            }
+
+            .letter-page {
+                padding: 20px;
+            }
+
+            .letter-content {
+                font-size: 16px;
+            }
+
+            .letter-content h2 {
+                font-size: 24px;
+            }
+
+            .envelope {
+                width: 250px;
+                height: 166px;
+            }
+
+            .edit-controls {
+                padding: 10px;
+            }
+        }
+
+        /* 開啟動畫 */
+        .opening {
+            animation: openEnvelope 1s ease-out;
+        }
+
+        @keyframes openEnvelope {
+            0% { transform: scale(1) rotateY(0deg); }
+            50% { transform: scale(1.1) rotateY(10deg); }
+            100% { transform: scale(1) rotateY(0deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- 編輯模式切換按鈕 -->
+    <button class="btn btn-secondary edit-toggle" onclick="toggleEditMode()">✏️ 編輯模式</button>
+
+    <!-- 編輯模式 -->
+    <div id="editMode" class="edit-mode" style="display: none;">
+        <div class="edit-controls">
+            <div class="edit-header">
+                <h1>🎂 生日驚喜網站編輯器</h1>
+                <p>設定您的專屬生日驚喜內容</p>
+            </div>
+
+            <!-- 倒數設定 -->
+            <div class="edit-section">
+                <h3>⏰ 倒數計時設定</h3>
+                <label>生日日期和時間：</label>
+                <input type="datetime-local" id="targetDate" class="edit-input" value="2024-10-05T00:00">
+                <label>倒數結束前顯示文字：</label>
+                <input type="text" id="waitingText" class="edit-input" value="還沒到時間哦～" placeholder="例如：還沒到時間哦～">
+            </div>
+
+            <!-- 信件頁面編輯 -->
+            <div class="edit-section">
+                <h3>💌 信件內容編輯</h3>
+                <div id="pagesEditor"><div class="page-editor">
+                    <div class="page-number">第 1 頁</div>
+                    <input type="text" class="edit-input" placeholder="頁面標題" value="給親愛的" onchange="updatePageTitle(0, this.value)">
+                    <textarea class="edit-textarea" placeholder="請輸入這一頁的內容..." onchange="updatePageContent(0, this.value)">今天可能不是你的生日，但這是為了你生日準備的卡片
+
+雖然是因為字醜才用電子版，但你一定沒收過這樣的卡片吧</textarea>
+                    <button class="btn btn-danger" onclick="removePage(0)">🗑️ 刪除此頁</button>
+                </div><div class="page-editor">
+                    <div class="page-number">第 2 頁</div>
+                    <input type="text" class="edit-input" placeholder="頁面標題" value="給優秀的你" onchange="updatePageTitle(1, this.value)">
+                    <textarea class="edit-textarea" placeholder="請輸入這一頁的內容..." onchange="updatePageContent(1, this.value)">一直以來，我都覺得你非常的優秀，優秀到讓我覺得配不上你
+
+從始至今我都沒有一句過度放大的誇獎，就真的覺得你很優秀，不要太自卑了餒</textarea>
+                    <button class="btn btn-danger" onclick="removePage(1)">🗑️ 刪除此頁</button>
+                </div><div class="page-editor">
+                    <div class="page-number">第 3 頁</div>
+                    <input type="text" class="edit-input" placeholder="頁面標題" value="生日快樂！🎉" onchange="updatePageTitle(2, this.value)">
+                    <textarea class="edit-textarea" placeholder="請輸入這一頁的內容..." onchange="updatePageContent(2, this.value)">雖然今天沒有達成你希望大家一起過的樣子
+但至少我可以陪你過餒，明年再看看你想要怎麼過餒
+
+總之還是生日快樂啦  要快樂要快樂餒</textarea>
+                    <button class="btn btn-danger" onclick="removePage(2)">🗑️ 刪除此頁</button>
+                </div><div class="page-editor">
+                    <div class="page-number">第 4 頁</div>
+                    <input type="text" class="edit-input" placeholder="頁面標題" value="我們的故事" onchange="updatePageTitle(3, this.value)">
+                    <textarea class="edit-textarea" placeholder="請輸入這一頁的內容..." onchange="updatePageContent(3, this.value)">我們的故事是由好幾個巧合編織而成的，彷彿就像是命中注定一樣，雖然我們感情開始的時候是場意外，但我們對於這份感情都是認真的
+不知不覺間我們已經在一起三個月多了，激烈溝通和爭執也沒少過，但每次經歷過後，都讓我們感情更升溫，未來我們肯定也沒問題的餒</textarea>
+                    <button class="btn btn-danger" onclick="removePage(3)">🗑️ 刪除此頁</button>
+                </div><div class="page-editor">
+                    <div class="page-number">第 5 頁</div>
+                    <input type="text" class="edit-input" placeholder="頁面標題" value="我們的故事還會繼續下去......" onchange="updatePageTitle(4, this.value)">
+                    <textarea class="edit-textarea" placeholder="請輸入這一頁的內容..." onchange="updatePageContent(4, this.value)"></textarea>
+                    <button class="btn btn-danger" onclick="removePage(4)">🗑️ 刪除此頁</button>
+                </div></div>
+                <div class="button-group">
+                    <button class="btn btn-success" onclick="addPage()">➕ 新增頁面</button>
+                </div>
+            </div>
+
+            <!-- 控制按鈕 -->
+            <div class="button-group">
+                <button class="btn btn-primary" onclick="saveChanges()">💾 儲存變更</button>
+                <button class="btn btn-success" onclick="exportHTMLFile()">📤 匯出完整檔案</button>
+                <button class="btn btn-secondary" onclick="previewSite()">👀 預覽效果</button>
+                <button class="btn btn-secondary" onclick="toggleEditMode()">❌ 關閉編輯</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- 主要內容容器 -->
+    <div id="mainContent">
+        <!-- 倒數計時模式 -->
+        <div id="countdownMode" class="countdown-container">
+            <div class="envelope" onclick="tryOpen()">
+                <div class="envelope-content" id="envelopeText">點我開啟信件</div>
+            </div>
+            <div class="countdown-label">距離特別的時刻還有</div>
+            <div id="countdown" class="countdown"></div>
+            <div style="font-size: 14px; opacity: 0.8; margin-top: 10px;">天:小時:分鐘:秒鐘</div>
+        </div>
+
+        <!-- 信件內容模式 -->
+        <div id="letterMode" class="letter-container">
+            <div class="letter-book" id="letterBook"><div class="letter-page active">
+                    <div class="letter-content">
+                        <h2>給親愛的</h2>
+                        <p style="white-space: pre-line;">今天可能不是你的生日，但這是為了你生日準備的卡片
+
+雖然是因為字醜才用電子版，但你一定沒收過這樣的卡片吧</p>
+                    </div>
+                </div><div class="letter-page">
+                    <div class="letter-content">
+                        <h2>給優秀的你</h2>
+                        <p style="white-space: pre-line;">一直以來，我都覺得你非常的優秀，優秀到讓我覺得配不上你
+
+從始至今我都沒有一句過度放大的誇獎，就真的覺得你很優秀，不要太自卑了餒</p>
+                    </div>
+                </div><div class="letter-page">
+                    <div class="letter-content">
+                        <h2>生日快樂！🎉</h2>
+                        <p style="white-space: pre-line;">雖然今天沒有達成你希望大家一起過的樣子
+但至少我可以陪你過餒，明年再看看你想要怎麼過餒
+
+總之還是生日快樂啦  要快樂要快樂餒</p>
+                    </div>
+                </div><div class="letter-page">
+                    <div class="letter-content">
+                        <h2>我們的故事</h2>
+                        <p style="white-space: pre-line;">我們的故事是由好幾個巧合編織而成的，彷彿就像是命中注定一樣，雖然我們感情開始的時候是場意外，但我們對於這份感情都是認真的
+不知不覺間我們已經在一起三個月多了，激烈溝通和爭執也沒少過，但每次經歷過後，都讓我們感情更升溫，未來我們肯定也沒問題的餒</p>
+                    </div>
+                </div><div class="letter-page">
+                    <div class="letter-content">
+                        <h2>我們的故事還會繼續下去......</h2>
+                        <p style="white-space: pre-line;"></p>
+                    </div>
+                </div></div>
+        </div>
+    </div>
+
+    <!-- 導航按鈕 -->
+    <div class="navigation" id="navigation">
+        <button class="nav-btn" id="prevBtn" onclick="previousPage()" disabled="">⬅️ 上一頁</button>
+        <button class="nav-btn" id="nextBtn" onclick="nextPage()">下一頁 ➡️</button>
+    </div>
+
+    <!-- 頁面指示器 -->
+    <div class="page-indicator" id="pageIndicator"><div class="page-dot active"></div><div class="page-dot"></div><div class="page-dot"></div><div class="page-dot"></div><div class="page-dot"></div></div>
+
+    <script>
+        // 默認數據
+        let siteData = {
+          "targetDate": "2024-10-05T00:00",
+          "waitingText": "點我開啟信件",
+          "pages": [
+                    {
+                              "title": "給親愛的",
+                              "content": "今天可能不是你的生日，但這是為了你生日準備的卡片\n\n雖然是因為字醜才用電子版，但你一定沒收過這樣的卡片吧"
+                    },
+                    {
+                              "title": "給優秀的你",
+                              "content": "一直以來，我都覺得你非常的優秀，優秀到讓我覺得配不上你\n\n從始至今我都沒有一句過度放大的誇獎，就真的覺得你很優秀，不要太自卑了餒"
+                    },
+                    {
+                              "title": "生日快樂！🎉",
+                              "content": "雖然今天沒有達成你希望大家一起過的樣子\n但至少我可以陪你過餒，明年再看看你想要怎麼過餒\n\n總之還是生日快樂啦  要快樂要快樂餒"
+                    },
+                    {
+                              "title": "我們的故事",
+                              "content": "我們的故事是由好幾個巧合編織而成的，彷彿就像是命中注定一樣，雖然我們感情開始的時候是場意外，但我們對於這份感情都是認真的\n不知不覺間我們已經在一起三個月多了，激烈溝通和爭執也沒少過，但每次經歷過後，都讓我們感情更升溫，未來我們肯定也沒問題的餒"
+                    },
+                    {
+                              "title": "我們的故事還會繼續下去......",
+                              "content": ""
+                    }
+          ]
+};
+
+        let currentPage = 0;
+        let countdownInterval;
+        let isEditMode = false;
+
+        // 初始化
+        function init() {
+            loadSavedData();
+            updateCountdown();
+            countdownInterval = setInterval(updateCountdown, 1000);
+            generatePagesEditor();
+            generateLetterPages();
+        }
+
+        // 從內存讀取數據
+        function loadSavedData() {
+            updateUI();
+        }
+
+        // 更新UI顯示
+        function updateUI() {
+            document.getElementById('targetDate').value = siteData.targetDate;
+            document.getElementById('waitingText').value = siteData.waitingText;
+            document.getElementById('envelopeText').textContent = siteData.waitingText;
+        }
+
+        // 切換編輯模式
+        function toggleEditMode() {
+            isEditMode = !isEditMode;
+            const editMode = document.getElementById('editMode');
+            editMode.style.display = isEditMode ? 'block' : 'none';
+            
+            if (isEditMode) {
+                generatePagesEditor();
+            }
+        }
+
+        // 生成頁面編輯器
+        function generatePagesEditor() {
+            const container = document.getElementById('pagesEditor');
+            container.innerHTML = '';
+
+            siteData.pages.forEach((page, index) => {
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'page-editor';
+                pageDiv.innerHTML = `
+                    <div class="page-number">第 ${index + 1} 頁</div>
+                    <input type="text" class="edit-input" placeholder="頁面標題" value="${page.title}" 
+                           onchange="updatePageTitle(${index}, this.value)">
+                    <textarea class="edit-textarea" placeholder="請輸入這一頁的內容..." 
+                              onchange="updatePageContent(${index}, this.value)">${page.content}</textarea>
+                    <button class="btn btn-danger" onclick="removePage(${index})" 
+                            ${siteData.pages.length <= 1 ? 'disabled' : ''}>🗑️ 刪除此頁</button>
+                `;
+                container.appendChild(pageDiv);
+            });
+        }
+
+        // 更新頁面標題
+        function updatePageTitle(index, title) {
+            siteData.pages[index].title = title;
+        }
+
+        // 更新頁面內容
+        function updatePageContent(index, content) {
+            siteData.pages[index].content = content;
+        }
+
+        // 新增頁面
+        function addPage() {
+            siteData.pages.push({
+                title: `新頁面 ${siteData.pages.length + 1}`,
+                content: '請輸入內容...'
+            });
+            generatePagesEditor();
+        }
+
+        // 刪除頁面
+        function removePage(index) {
+            if (siteData.pages.length > 1) {
+                siteData.pages.splice(index, 1);
+                generatePagesEditor();
+            }
+        }
+
+        // 儲存變更
+        function saveChanges() {
+            siteData.targetDate = document.getElementById('targetDate').value;
+            siteData.waitingText = document.getElementById('waitingText').value;
+            
+            updateUI();
+            generateLetterPages();
+            alert('✅ 變更已儲存！');
+        }
+
+        // 匯出完整HTML檔案
+        function exportHTMLFile() {
+            // 更新資料
+            siteData.targetDate = document.getElementById('targetDate').value;
+            siteData.waitingText = document.getElementById('waitingText').value;
+            
+            // 取得當前HTML內容
+            let htmlContent = document.documentElement.outerHTML;
+            
+            // 找到並替換 siteData 物件
+            const siteDataRegex = /let siteData = \{[\s\S]*?\};/;
+            const newSiteData = `let siteData = ${JSON.stringify(siteData, null, 12)};`;
+            
+            htmlContent = htmlContent.replace(siteDataRegex, newSiteData);
+            
+            // 關閉編輯模式顯示
+            htmlContent = htmlContent.replace('id="editMode" class="edit-mode" style="display: block;"', 'id="editMode" class="edit-mode" style="display: none;"');
+            
+            // 重置為初始狀態：顯示倒數計時，隱藏信件內容
+            htmlContent = htmlContent.replace('id="countdownMode" class="countdown-container" style="display: none;"', 'id="countdownMode" class="countdown-container"');
+            htmlContent = htmlContent.replace(/id="letterMode" class="letter-container"]*"/g, 'id="letterMode" class="letter-container"');
+            htmlContent = htmlContent.replace(/id="navigation"[^>]*style="display: flex;"/g, 'id="navigation"');
+            htmlContent = htmlContent.replace(/id="pageIndicator"[^>]*style="display: flex;"/g, 'id="pageIndicator"');
+            
+            // 創建並下載HTML檔案
+            const blob = new Blob([htmlContent], {type: 'text/html'});
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'birthday_surprise.html';
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            
+            alert('✅ 完整HTML檔案已匯出！\n新檔案包含了您所有的修改內容。');
+        }
+
+        // 預覽效果
+        function previewSite() {
+            toggleEditMode();
+            saveChanges();
+        }
+
+        // 生成信件頁面
+        function generateLetterPages() {
+            const container = document.getElementById('letterBook');
+            container.innerHTML = '';
+
+            const indicator = document.getElementById('pageIndicator');
+            indicator.innerHTML = '';
+
+            siteData.pages.forEach((page, index) => {
+                // 創建頁面
+                const pageDiv = document.createElement('div');
+                pageDiv.className = 'letter-page';
+                // 第一頁預設顯示
+                if (index === 0) {
+                    pageDiv.classList.add('active');
+                }
+                pageDiv.innerHTML = `
+                    <div class="letter-content">
+                        <h2>${page.title}</h2>
+                        <p style="white-space: pre-line;">${page.content}</p>
+                    </div>
+                `;
+                container.appendChild(pageDiv);
+
+                // 創建指示器圓點
+                const dot = document.createElement('div');
+                dot.className = 'page-dot';
+                if (index === 0) dot.classList.add('active');
+                dot.onclick = () => goToPage(index);
+                indicator.appendChild(dot);
+            });
+
+            updateNavigation();
+        }
+
+        // 倒數計時更新
+        function updateCountdown() {
+            const now = new Date().getTime();
+            const target = new Date(siteData.targetDate).getTime();
+            const distance = target - now;
+
+            if (distance > 0) {
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                document.getElementById('countdown').innerHTML = 
+                    String(days).padStart(2, '0') + ':' +
+                    String(hours).padStart(2, '0') + ':' +
+                    String(minutes).padStart(2, '0') + ':' +
+                    String(seconds).padStart(2, '0');
+            } else {
+                document.getElementById('countdown').innerHTML = "";
+                clearInterval(countdownInterval);
+            }
+        }
+
+        // 嘗試開啟信件
+        function tryOpen() {
+            const now = new Date().getTime();
+            const target = new Date(siteData.targetDate).getTime();
+
+            if (now >= target) {
+                openLetter();
+            } else {
+                // 搖晃動畫提示
+                const envelope = document.querySelector('.envelope');
+                envelope.style.animation = 'none';
+                setTimeout(() => {
+                    envelope.style.animation = 'openEnvelope 0.5s ease-out';
+                }, 10);
+            }
+        }
+
+        // 開啟信件
+        function openLetter() {
+            document.getElementById('countdownMode').style.display = 'none';
+            document.getElementById('letterMode').style.display = 'block';
+            document.getElementById('navigation').style.display = 'flex';
+            document.getElementById('pageIndicator').style.display = 'flex';
+            
+            // 播放開啟動畫
+            const letterContainer = document.getElementById('letterMode');
+            letterContainer.style.animation = 'openEnvelope 1s ease-out';
+        }
+
+        // 翻頁功能
+        function nextPage() {
+            if (currentPage < siteData.pages.length - 1) {
+                currentPage++;
+                updatePages();
+            }
+        }
+
+        function previousPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                updatePages();
+            }
+        }
+
+        function goToPage(page) {
+            currentPage = page;
+            updatePages();
+        }
+
+        function updatePages() {
+            const pages = document.querySelectorAll('.letter-page');
+            const dots = document.querySelectorAll('.page-dot');
+
+            pages.forEach((page, index) => {
+                // 移除所有狀態
+                page.classList.remove('active', 'flipped');
+                
+                // 設定當前頁面為顯示
+                if (index === currentPage) {
+                    page.classList.add('active');
+                }
+                // 已經翻過的頁面
+                else if (index < currentPage) {
+                    page.classList.add('flipped');
+                }
+            });
+
+            dots.forEach((dot, index) => {
+                dot.classList.toggle('active', index === currentPage);
+            });
+
+            updateNavigation();
+        }
+
+        function updateNavigation() {
+            const prevBtn = document.getElementById('prevBtn');
+            const nextBtn = document.getElementById('nextBtn');
+
+            prevBtn.disabled = currentPage === 0;
+            nextBtn.disabled = currentPage === siteData.pages.length - 1;
+        }
+
+        // 啟動網站
+        init();
+    </script>
+
+</body></html>
