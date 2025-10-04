@@ -411,6 +411,11 @@
                     <input type="text" class="edit-input" placeholder="頁面標題" value="我們的故事還會繼續下去......" onchange="updatePageTitle(4, this.value)">
                     <textarea class="edit-textarea" placeholder="請輸入這一頁的內容..." onchange="updatePageContent(4, this.value)"></textarea>
                     <button class="btn btn-danger" onclick="removePage(4)">🗑️ 刪除此頁</button>
+                </div><div class="page-editor">
+                    <div class="page-number">第 6 頁</div>
+                    <input type="text" class="edit-input" placeholder="頁面標題" value="新頁面 6" onchange="updatePageTitle(5, this.value)">
+                    <textarea class="edit-textarea" placeholder="請輸入這一頁的內容..." onchange="updatePageContent(5, this.value)">請輸入內容...</textarea>
+                    <button class="btn btn-danger" onclick="removePage(5)">🗑️ 刪除此頁</button>
                 </div></div>
                 <div class="button-group">
                     <button class="btn btn-success" onclick="addPage()">➕ 新增頁面</button>
@@ -512,6 +517,10 @@
                     {
                               "title": "我們的故事還會繼續下去......",
                               "content": ""
+                    },
+                    {
+                              "title": "PS:",
+                              "content": "很幸運地，今天能夠與你來一場約會，看得出來你很喜歡，但我還是要問一次，這樣的慶生滿意嗎？\n在觀景平台時，其實我看到你哭出來的時候，心裡想的是，能全心為一個人好的感覺真好，好喜歡你，也難怪你這麼喜歡對大家好了，你的那份就由我來對你好，很慶幸在這麼多的巧合中遇見你，也很高興你給了我機會嘗試與我交往，我還會繼續對你好的，請你往後也接好了，我愛你。"
                     }
           ]
 };
@@ -629,7 +638,7 @@
             htmlContent = htmlContent.replace('id="editMode" class="edit-mode" style="display: block;"', 'id="editMode" class="edit-mode" style="display: none;"');
             
             // 重置為初始狀態：顯示倒數計時，隱藏信件內容
-            htmlContent = htmlContent.replace('id="countdownMode" class="countdown-container" style="display: none;"', 'id="countdownMode" class="countdown-container"');
+            htmlContent = htmlContent.replace('id="countdownMode" class="countdown-container"', 'id="countdownMode" class="countdown-container"');
             htmlContent = htmlContent.replace(/id="letterMode" class="letter-container"]*"/g, 'id="letterMode" class="letter-container"');
             htmlContent = htmlContent.replace(/id="navigation"[^>]*style="display: flex;"/g, 'id="navigation"');
             htmlContent = htmlContent.replace(/id="pageIndicator"[^>]*style="display: flex;"/g, 'id="pageIndicator"');
